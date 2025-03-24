@@ -1,4 +1,3 @@
-// Quiz questions and answers
 const quizData = [
   {
     question: "What is the capital of France?",
@@ -49,31 +48,6 @@ const quizData = [
     question: "What is the hardest natural substance on Earth?",
     options: ["Gold", "Iron", "Diamond", "Graphite"],
     answer: "Diamond"
-  },
-  {
-    question: "Which gas do plants absorb from the atmosphere?",
-    options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
-    answer: "Carbon Dioxide"
-  },
-  {
-    question: "Who developed the theory of relativity?",
-    options: ["Isaac Newton", "Albert Einstein", "Stephen Hawking", "Galileo Galilei"],
-    answer: "Albert Einstein"
-  },
-  {
-    question: "What is the largest mammal in the world?",
-    options: ["Elephant", "Blue Whale", "Giraffe", "Shark"],
-    answer: "Blue Whale"
-  },
-  {
-    question: "Which country is famous for inventing pizza?",
-    options: ["France", "Italy", "Spain", "Greece"],
-    answer: "Italy"
-  },
-  {
-    question: "What is the square root of 64?",
-    options: ["4", "6", "8", "10"],
-    answer: "8"
   }
 ];
 
@@ -84,6 +58,8 @@ const questionElement = document.getElementById("question");
 const optionsListElement = document.getElementById("options-list");
 const nextButton = document.getElementById("next-button");
 const scoreElement = document.getElementById("score");
+const feedbackElement = document.getElementById("feedback");
+const progressElement = document.getElementById("progress");
 
 // Load the current question
 function loadQuestion() {
@@ -97,28 +73,39 @@ function loadQuestion() {
     li.addEventListener("click", () => selectAnswer(option));
     optionsListElement.appendChild(li);
   });
+
+  // Update progress bar
+  progressElement.style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
 }
 
 // Handle answer selection
 function selectAnswer(selectedOption) {
   const currentQuestion = quizData[currentQuestionIndex];
-  if (selectedOption === currentQuestion.answer) {
-    score++;
-  }
+  const isCorrect = selectedOption === currentQuestion.answer;
 
   // Disable further selections for this question
   optionsListElement.querySelectorAll("li").forEach(li => {
     li.removeEventListener("click", selectAnswer);
   });
 
-  // Highlight the correct answer
+  // Highlight the correct and incorrect answers
   optionsListElement.querySelectorAll("li").forEach(li => {
     if (li.textContent === currentQuestion.answer) {
-      li.style.backgroundColor = "#a5d6a7"; // Green for correct answer
+      li.classList.add("correct");
     } else if (li.textContent === selectedOption) {
-      li.style.backgroundColor = "#ef9a9a"; // Red for incorrect answer
+      li.classList.add("incorrect");
     }
   });
+
+  // Update score and feedback
+  if (isCorrect) {
+    score++;
+    feedbackElement.textContent = "Correct! 🎉";
+    feedbackElement.style.color = "#28a745";
+  } else {
+    feedbackElement.textContent = "Incorrect! 😢";
+    feedbackElement.style.color = "#dc3545";
+  }
 
   nextButton.disabled = false;
 }
@@ -129,6 +116,7 @@ nextButton.addEventListener("click", () => {
   if (currentQuestionIndex < quizData.length) {
     loadQuestion();
     nextButton.disabled = true;
+    feedbackElement.textContent = "";
   } else {
     showScore();
   }
@@ -139,6 +127,7 @@ function showScore() {
   questionElement.textContent = "Quiz Completed!";
   optionsListElement.innerHTML = "";
   nextButton.style.display = "none";
+  feedbackElement.textContent = "";
   scoreElement.textContent = `Your Score: ${score} out of ${quizData.length}`;
 }
 
